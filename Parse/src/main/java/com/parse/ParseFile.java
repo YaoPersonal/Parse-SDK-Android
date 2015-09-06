@@ -136,10 +136,72 @@ public class ParseFile {
    * successfully synced with the server.
    */
   /* package for tests */ byte[] data;
+  /* package for tests */ File file;
 
   /* package for tests */ final TaskQueue taskQueue = new TaskQueue();
   private Set<Task<?>.TaskCompletionSource> currentTasks = Collections.synchronizedSet(
       new HashSet<Task<?>.TaskCompletionSource>());
+
+  /**
+   * Creates a new file from a file pointer, file name, and content type. Content type will be used
+   * instead of auto-detection by file extension.
+   *
+   * @param name
+   *          The file's name, ideally with extension. The file name must begin with an alphanumeric
+   *          character, and consist of alphanumeric characters, periods, spaces, underscores, or
+   *          dashes.
+   * @param file
+   *          The file.
+   * @param contentType
+   *          The file's content type.
+   */
+  public ParseFile(String name, File file, String contentType) {
+    this(new State.Builder().name(name).mimeType(contentType).build());
+    if (file.length() > MAX_FILE_SIZE) {
+      throw new IllegalArgumentException(String.format("ParseFile must be less than %d bytes",
+          MAX_FILE_SIZE));
+    }
+    this.file = file;
+  }
+
+  /**
+   * Creates a new file from a file pointer.
+   *
+   * @param file
+   *          The file.
+   */
+  public ParseFile(File file) {
+    this(null, file, null);
+  }
+
+  /**
+   * Creates a new file from a file pointer and a name. Giving a name with a proper file extension
+   * (e.g. ".png") is ideal because it allows Parse to deduce the content type of the file and set
+   * appropriate HTTP headers when it is fetched.
+   *
+   * @param name
+   *          The file's name, ideally with extension. The file name must begin with an alphanumeric
+   *          character, and consist of alphanumeric characters, periods, spaces, underscores, or
+   *          dashes.
+   * @param file
+   *          The file.
+   */
+  public ParseFile(String name, File file) {
+    this(name, file, null);
+  }
+
+  /**
+   * Creates a new file from a file pointer, and content type. Content type will be used instead of
+   * auto-detection by file extension.
+   *
+   * @param file
+   *          The file.
+   * @param contentType
+   *          The file's content type.
+   */
+  public ParseFile(File file, String contentType) {
+    this(null, file, contentType);
+  }
 
   /**
    * Creates a new file from a byte array, file name, and content type. Content type will be used
@@ -275,12 +337,21 @@ public class ParseFile {
           return Task.cancelled();
         }
 
-        return getFileController().saveAsync(
-            state,
-            data,
-            sessionToken,
-            progressCallbackOnMainThread(uploadProgressCallback),
-            cancellationToken).onSuccessTask(new Continuation<State, Task<Void>>() {
+        Task<ParseFile.State> saveTask = data != null ?
+            getFileController().saveAsync(
+                state,
+                data,
+                sessionToken,
+                progressCallbackOnMainThread(uploadProgressCallback),
+                cancellationToken) :
+            getFileController().saveAsync(
+                state,
+                file,
+                sessionToken,
+                progressCallbackOnMainThread(uploadProgressCallback),
+                cancellationToken);
+
+        return saveTask.onSuccessTask(new Continuation<State, Task<Void>>() {
           @Override
           public Task<Void> then(Task<State> task) throws Exception {
             state = task.getResult();
@@ -300,6 +371,10 @@ public class ParseFile {
    * @return A Task that will be resolved when the save completes.
    */
   public Task<Void> saveInBackground(final ProgressCallback uploadProgressCallback) {
+    if (data != null && file != null) {
+      throw new IllegalArgumentException("File and data can not be set at the same time");
+    }
+
     final Task<Void>.TaskCompletionSource cts = Task.create();
     currentTasks.add(cts);
 
