@@ -58,31 +58,28 @@ public class ParseFileTest {
     String contentType = "content_type";
     File file = temporaryFolder.newFile("test");
 
+    // TODO(mengyan): Test data and file pointer in ParseFile when we have proper stage strategy
+
     ParseFile parseFile = new ParseFile(name, data, contentType);
     assertEquals("name", parseFile.getName());
-    assertEquals("hello", new String(parseFile.getData()));
     assertEquals("content_type", parseFile.getState().mimeType());
     assertTrue(parseFile.isDirty());
 
     parseFile = new ParseFile(data);
     assertEquals("file", parseFile.getName()); // Default
-    assertEquals("hello", new String(parseFile.getData()));
     assertEquals(null, parseFile.getState().mimeType());
     assertTrue(parseFile.isDirty());
 
     parseFile = new ParseFile(name, data);
     assertEquals("name", parseFile.getName());
-    assertEquals("hello", new String(parseFile.getData()));
     assertEquals(null, parseFile.getState().mimeType());
     assertTrue(parseFile.isDirty());
 
     parseFile = new ParseFile(data, contentType);
     assertEquals("file", parseFile.getName()); // Default
-    assertEquals("hello", new String(parseFile.getData()));
     assertEquals("content_type", parseFile.getState().mimeType());
     assertTrue(parseFile.isDirty());
 
-    // TODO(mengyan): Test file pointer in ParseFile when we have proper stage strategy
     parseFile = new ParseFile(name, file, contentType);
     assertEquals("name", parseFile.getName());
     assertEquals("content_type", parseFile.getState().mimeType());
