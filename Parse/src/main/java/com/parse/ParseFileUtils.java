@@ -519,6 +519,11 @@ import java.nio.charset.Charset;
     return readFileToString(file, Charset.forName(encoding));
   }
 
+  public static void writeStringToFile(File file, String string)
+      throws IOException {
+    writeByteArrayToFile(file, string.getBytes());
+  }
+
   public static void writeStringToFile(File file, String string, Charset encoding)
       throws IOException {
     writeByteArrayToFile(file, string.getBytes(encoding));

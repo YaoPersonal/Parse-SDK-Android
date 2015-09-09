@@ -13,20 +13,25 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 
 import bolts.Task;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -163,7 +168,112 @@ public class ParseFileTest {
 
   //endregion
 
-  // TODO(grantland): testGetDataAsync (same as saveAsync)
+
+  //region testGetDataAsync
+
+  @Test
+  public void testGetDataAsyncSuccess() throws Exception {
+    String content = "content";
+    File file = temporaryFolder.newFile("test");
+    ParseFileUtils.writeStringToFile(file, content);
+    ParseFileController controller = mock(ParseFileController.class);
+    when(controller.fetchAsync(
+        any(ParseFile.State.class),
+        any(String.class),
+        any(ProgressCallback.class),
+        Matchers.<Task<Void>>any())).thenReturn(Task.forResult(file));
+    ParseCorePlugins.getInstance().registerFileController(controller);
+
+    String url = "url";
+    ParseFile.State state = new ParseFile.State.Builder()
+        .url(url)
+        .build();
+    ParseFile parseFile = new ParseFile(state);
+
+    byte[] data = ParseTaskUtils.wait(parseFile.getDataInBackground());
+
+    // Verify controller get the correct data
+    ArgumentCaptor<ParseFile.State> stateCaptor = ArgumentCaptor.forClass(ParseFile.State.class);
+    verify(controller, times(1)).fetchAsync(
+        stateCaptor.capture(),
+        anyString(),
+        any(ProgressCallback.class),
+        Matchers.<Task<Void>>any()
+    );
+    assertEquals(url, stateCaptor.getValue().url());
+    // Verify the data we get is correct
+    assertArrayEquals(content.getBytes(), data);
+  }
+
+  @Test
+  public void testGetDataStreamAsyncSuccess() throws Exception {
+    String content = "content";
+    File file = temporaryFolder.newFile("test");
+    ParseFileUtils.writeStringToFile(file, content);
+    ParseFileController controller = mock(ParseFileController.class);
+    when(controller.fetchAsync(
+        any(ParseFile.State.class),
+        any(String.class),
+        any(ProgressCallback.class),
+        Matchers.<Task<Void>>any())).thenReturn(Task.forResult(file));
+    ParseCorePlugins.getInstance().registerFileController(controller);
+
+    String url = "url";
+    ParseFile.State state = new ParseFile.State.Builder()
+        .url(url)
+        .build();
+    ParseFile parseFile = new ParseFile(state);
+
+    InputStream dataStream = ParseTaskUtils.wait(parseFile.getDataStreamInBackground());
+
+    // Verify controller get the correct data
+    ArgumentCaptor<ParseFile.State> stateCaptor = ArgumentCaptor.forClass(ParseFile.State.class);
+    verify(controller, times(1)).fetchAsync(
+        stateCaptor.capture(),
+        anyString(),
+        any(ProgressCallback.class),
+        Matchers.<Task<Void>>any()
+    );
+    assertEquals(url, stateCaptor.getValue().url());
+    // Verify the data we get is correct
+    assertArrayEquals(content.getBytes(), ParseIOUtils.toByteArray(dataStream));
+  }
+
+  @Test
+  public void testGetFileAsyncSuccess() throws Exception {
+    String content = "content";
+    File file = temporaryFolder.newFile("test");
+    ParseFileUtils.writeStringToFile(file, content);
+    ParseFileController controller = mock(ParseFileController.class);
+    when(controller.fetchAsync(
+        any(ParseFile.State.class),
+        any(String.class),
+        any(ProgressCallback.class),
+        Matchers.<Task<Void>>any())).thenReturn(Task.forResult(file));
+    ParseCorePlugins.getInstance().registerFileController(controller);
+
+    String url = "url";
+    ParseFile.State state = new ParseFile.State.Builder()
+        .url(url)
+        .build();
+    ParseFile parseFile = new ParseFile(state);
+
+    File fetchedFile = ParseTaskUtils.wait(parseFile.getFileInBackground());
+
+    // Verify controller get the correct data
+    ArgumentCaptor<ParseFile.State> stateCaptor = ArgumentCaptor.forClass(ParseFile.State.class);
+    verify(controller, times(1)).fetchAsync(
+        stateCaptor.capture(),
+        anyString(),
+        any(ProgressCallback.class),
+        Matchers.<Task<Void>>any()
+    );
+    assertEquals(url, stateCaptor.getValue().url());
+    // Verify the data we get is correct
+    assertArrayEquals(content.getBytes(), ParseFileUtils.readFileToByteArray(fetchedFile));
+  }
+
+  //endregion
 
   @Test
   public void testTaskQueuedMethods() throws Exception {
