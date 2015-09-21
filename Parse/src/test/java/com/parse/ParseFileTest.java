@@ -175,7 +175,7 @@ public class ParseFileTest {
   public void testGetDataAsyncSuccess() throws Exception {
     String content = "content";
     File file = temporaryFolder.newFile("test");
-    ParseFileUtils.writeStringToFile(file, content);
+    ParseFileUtils.writeStringToFile(file, content, "UTF-8");
     ParseFileController controller = mock(ParseFileController.class);
     when(controller.fetchAsync(
         any(ParseFile.State.class),
@@ -209,7 +209,7 @@ public class ParseFileTest {
   public void testGetDataStreamAsyncSuccess() throws Exception {
     String content = "content";
     File file = temporaryFolder.newFile("test");
-    ParseFileUtils.writeStringToFile(file, content);
+    ParseFileUtils.writeStringToFile(file, content, "UTF-8");
     ParseFileController controller = mock(ParseFileController.class);
     when(controller.fetchAsync(
         any(ParseFile.State.class),
@@ -243,7 +243,7 @@ public class ParseFileTest {
   public void testGetFileAsyncSuccess() throws Exception {
     String content = "content";
     File file = temporaryFolder.newFile("test");
-    ParseFileUtils.writeStringToFile(file, content);
+    ParseFileUtils.writeStringToFile(file, content, "UTF-8");
     ParseFileController controller = mock(ParseFileController.class);
     when(controller.fetchAsync(
         any(ParseFile.State.class),

@@ -363,18 +363,20 @@ public class ParseFile {
   }
 
   /**
-   * Synchronously gets the data for this object. You probably want to use
-   * {@link #getDataInBackground()} instead unless you're already in a background thread.
+   * Synchronously gets the data from cache if available or fetches its content from the network.
+   * You probably want to use {@link #getDataInBackground()} instead unless you're already in a
+   * background thread.
    */
   public byte[] getData() throws ParseException {
     return ParseTaskUtils.wait(getDataInBackground());
   }
 
   /**
-   * Gets the data for this object in a background thread.
+   * Asynchronously gets the data from cache if available or fetches its content from the network.
+   * A {@code ProgressCallback} will be called periodically with progress updates.
    *
    * @param progressCallback
-   *          A ProgressCallback that is called periodically with progress updates.
+   *          A {@code ProgressCallback} that is called periodically with progress updates.
    * @return A Task that is resolved when the data has been fetched.
    */
   public Task<byte[]> getDataInBackground(final ProgressCallback progressCallback) {
@@ -421,7 +423,7 @@ public class ParseFile {
   }
 
   /**
-   * Gets the data for this object in a background thread.
+   * Asynchronously gets the data from cache if available or fetches its content from the network.
    *
    * @return A Task that is resolved when the data has been fetched.
    */
@@ -430,12 +432,14 @@ public class ParseFile {
   }
 
   /**
-   * Gets the data for this object in a background thread.
+   * Asynchronously gets the data from cache if available or fetches its content from the network.
+   * A {@code ProgressCallback} will be called periodically with progress updates.
+   * A {@code GetDataCallback} will be called when the get completes.
    *
    * @param dataCallback
-   *          A GetDataCallback that is called when the get completes.
+   *          A {@code GetDataCallback} that is called when the get completes.
    * @param progressCallback
-   *          A ProgressCallback that is called periodically with progress updates.
+   *          A {@code ProgressCallback} that is called periodically with progress updates.
    */
   public void getDataInBackground(GetDataCallback dataCallback,
       final ProgressCallback progressCallback) {
@@ -443,28 +447,31 @@ public class ParseFile {
   }
 
   /**
-   * Gets the data for this object in a background thread.
+   * Asynchronously gets the data from cache if available or fetches its content from the network.
+   * A {@code GetDataCallback} will be called when the get completes.
    *
    * @param dataCallback
-   *          A GetDataCallback that is called when the get completes.
+   *          A {@code GetDataCallback} that is called when the get completes.
    */
   public void getDataInBackground(GetDataCallback dataCallback) {
     ParseTaskUtils.callbackOnMainThreadAsync(getDataInBackground(), dataCallback);
   }
 
   /**
-   * Synchronously gets the file pointer for this object. You probably want to use
-   * {@link #getFileInBackground()} instead unless you're already in a background thread.
+   * Synchronously gets the file pointer from cache if available or fetches its content from the
+   * network. You probably want to use {@link #getFileInBackground()} instead unless you're already
+   * in a background thread.
    */
   public File getFile() throws ParseException {
     return ParseTaskUtils.wait(getFileInBackground());
   }
 
   /**
-   * Gets the file pointer for this object in a background thread.
+   * Asynchronously gets the file pointer from cache if available or fetches its content from the
+   * network. The {@code ProgressCallback} will be called periodically with progress updates.
    *
    * @param progressCallback
-   *          A ProgressCallback that is called periodically with progress updates.
+   *          A {@code ProgressCallback} that is called periodically with progress updates.
    * @return A Task that is resolved when the file pointer of this object has been fetched.
    */
   public Task<File> getFileInBackground(final ProgressCallback progressCallback) {
@@ -487,7 +494,8 @@ public class ParseFile {
   }
 
   /**
-   * Gets the file pointer for this object in a background thread.
+   * Asynchronously gets the file pointer from cache if available or fetches its content from the
+   * network.
    *
    * @return A Task that is resolved when the data has been fetched.
    */
@@ -496,13 +504,16 @@ public class ParseFile {
   }
 
   /**
-   * Gets the file pointer for this object in a background thread. `progressCallback` is guaranteed
-   * to be called with 100 before `fileCallback` is called.
+   * Asynchronously gets the file pointer from cache if available or fetches its content from the
+   * network. The {@code GetFileCallback} will be called when the get completes.
+   * The {@code ProgressCallback} will be called periodically with progress updates.
+   * The {@code ProgressCallback} is guaranteed to be called with 100 before the
+   * {@code GetFileCallback} is called.
    *
    * @param fileCallback
-   *          A GetFileCallback that is called when the get completes.
+   *          A {@code GetFileCallback} that is called when the get completes.
    * @param progressCallback
-   *          A ProgressCallback that is called periodically with progress updates.
+   *          A {@code ProgressCallback} that is called periodically with progress updates.
    */
   public void getFileInBackground(GetFileCallback fileCallback,
       final ProgressCallback progressCallback) {
@@ -510,28 +521,33 @@ public class ParseFile {
   }
 
   /**
-   * Gets the file pointer for this object in a background thread.
+   * Asynchronously gets the file pointer from cache if available or fetches its content from the
+   * network. The {@code GetFileCallback} will be called when the get completes.
    *
    * @param fileCallback
-   *          A GetFileCallback that is called when the get completes.
+   *          A {@code GetFileCallback} that is called when the get completes.
    */
   public void getFileInBackground(GetFileCallback fileCallback) {
     ParseTaskUtils.callbackOnMainThreadAsync(getFileInBackground(), fileCallback);
   }
 
   /**
-   * Synchronously gets the data stream for this object. You probably want to use
-   * {@link #getDataStreamInBackground} instead unless you're already in a background thread.
+   * Synchronously gets the data stream from cached file if available or fetches its content from
+   * the network, saves the content as cached file and returns the data stream of the cached file.
+   * You probably want to use {@link #getDataStreamInBackground} instead unless you're already in a
+   * background thread.
    */
   public InputStream getDataStream() throws ParseException {
     return ParseTaskUtils.wait(getDataStreamInBackground());
   }
 
   /**
-   * Gets the data stream for this object in a background thread.
+   * Asynchronously gets the data stream from cached file if available or fetches its content from
+   * the network, saves the content as cached file and returns the data stream of the cached file.
+   * The {@code ProgressCallback} will be called periodically with progress updates.
    *
    * @param progressCallback
-   *          A ProgressCallback that is called periodically with progress updates.
+   *          A {@code ProgressCallback} that is called periodically with progress updates.
    * @return A Task that is resolved when the data stream of this object has been fetched.
    */
   public Task<InputStream> getDataStreamInBackground(final ProgressCallback progressCallback) {
@@ -559,7 +575,8 @@ public class ParseFile {
   }
 
   /**
-   * Gets the data stream for this object in a background thread.
+   * Asynchronously gets the data stream from cached file if available or fetches its content from
+   * the network, saves the content as cached file and returns the data stream of the cached file.
    *
    * @return A Task that is resolved when the data stream has been fetched.
    */
@@ -568,13 +585,17 @@ public class ParseFile {
   }
 
   /**
-   * Gets the data stream for this object in a background thread. `progressCallback` is guaranteed
-   * to be called with 100 before `dataStreamCallback` is called.
+   * Asynchronously gets the data stream from cached file if available or fetches its content from
+   * the network, saves the content as cached file and returns the data stream of the cached file.
+   * The {@code GetDataStreamCallback} will be called when the get completes. The
+   * {@code ProgressCallback} will be called periodically with progress updates. The
+   * {@code ProgressCallback} is guaranteed to be called with 100 before
+   * {@code GetDataStreamCallback} is called.
    *
    * @param dataStreamCallback
-   *          A GetDataCallback that is called when the get completes.
+   *          A {@code GetDataStreamCallback} that is called when the get completes.
    * @param progressCallback
-   *          A ProgressCallback that is called periodically with progress updates.
+   *          A {@code ProgressCallback} that is called periodically with progress updates.
    */
   public void getDataStreamInBackground(GetDataStreamCallback dataStreamCallback,
       final ProgressCallback progressCallback) {
@@ -583,10 +604,12 @@ public class ParseFile {
   }
 
   /**
-   * Gets the data stream for this object in a background thread.
+   * Asynchronously gets the data stream from cached file if available or fetches its content from
+   * the network, saves the content as cached file and returns the data stream of the cached file.
+   * The {@code GetDataStreamCallback} will be called when the get completes.
    *
    * @param dataStreamCallback
-   *          A GetDataCallback that is called when the get completes.
+   *          A {@code GetDataStreamCallback} that is called when the get completes.
    */
   public void getDataStreamInBackground(GetDataStreamCallback dataStreamCallback) {
     ParseTaskUtils.callbackOnMainThreadAsync(getDataStreamInBackground(), dataStreamCallback);
